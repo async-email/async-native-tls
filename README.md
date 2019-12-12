@@ -11,14 +11,17 @@ $ cargo add async-native-tls
 ## Example
 
 ```rust
+use async_std::prelude::*;
+use std::net::ToSocketAddrs;
+
 // First up, resolve google.com
 let addr = "google.com:443".to_socket_addrs().unwrap().next().unwrap();
 
-let socket = TcpStream::connect(&addr).await.unwrap();
+let socket = async_std::net::TcpStream::connect(&addr).await.unwrap();
 
 // Send off the request by first negotiating an SSL handshake, then writing
 // of our request, then flushing, then finally read off the response.
-let builder = TlsConnector::builder();
+let builder = native_tls::TlsConnector::builder();
 let connector = builder.build().unwrap();
 let connector = async_native_tls::TlsConnector::from(connector);
 let mut socket = connector.connect("google.com", socket).await;
