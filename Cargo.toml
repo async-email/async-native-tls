@@ -16,7 +16,7 @@ categories = ["asynchronous", "cryptography", "network-programming"]
 
 [dependencies]
 native-tls = "0.2.3"
-futures = "0.3.1"
+futures-io = "0.3.1"
 
 
 [features]
@@ -26,3 +26,4 @@ vendored = ["native-tls/vendored"]
 env_logger = "0.7.1"
 async-std = { version = "1.2.0", features = ["attributes"] }
 cfg-if = "0.1.10"
+futures = "0.3.1"

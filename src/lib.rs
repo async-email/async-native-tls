@@ -15,7 +15,7 @@ use std::pin::Pin;
 use std::ptr::null_mut;
 use std::task::{Context, Poll};
 
-use futures::{AsyncRead, AsyncWrite};
+use futures_io::{AsyncRead, AsyncWrite};
 use native_tls::{Error, HandshakeError, MidHandshakeTlsStream};
 
 #[derive(Debug)]
