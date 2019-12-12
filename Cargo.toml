@@ -3,7 +3,16 @@ name = "async-native-tls"
 version = "0.0.1"
 authors = ["dignifiedquire <me@dignifiedquire.com>"]
 edition = "2018"
-license = "MIT/Apache 2.0"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/async-email/async-native-tls"
+homepage = "https://docs.rs/crate/async-native-tls/"
+documentation = "https://docs.rs/crate/async-native-tls/"
+description = """
+Native TLS using futures
+"""
+readme = "README.md"
+categories = ["asynchronous", "cryptography", "network-programming"]
+
 
 [dependencies]
 native-tls = "0.2.3"
