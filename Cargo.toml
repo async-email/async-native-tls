@@ -1,0 +1,19 @@
+[package]
+name = "async-native-tls"
+version = "0.1.0"
+authors = ["dignifiedquire <me@dignifiedquire.com>"]
+edition = "2018"
+license = "MIT/Apache 2.0"
+
+[dependencies]
+native-tls = "0.2.3"
+futures = "0.3.1"
+
+
+[features]
+vendored = ["native-tls/vendored"]
+
+[dev-dependencies]
+env_logger = "0.7.1"
+async-std = { version = "1.2.0", features = ["attributes"] }
+cfg-if = "0.1.10"
