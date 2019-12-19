@@ -8,6 +8,8 @@ use futures_io::{AsyncRead, AsyncWrite};
 
 use crate::std_adapter::StdAdapter;
 
+/// A stream managing a TLS session.
+///
 /// A wrapper around an underlying raw stream which implements the TLS or SSL
 /// protocol.
 ///
