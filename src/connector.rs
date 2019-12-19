@@ -10,7 +10,7 @@ use crate::handshake::handshake;
 /// A wrapper around a `native_tls::TlsConnector`, providing an async `connect`
 /// method.
 #[derive(Clone)]
-pub struct TlsConnector(native_tls::TlsConnector);
+pub(crate) struct TlsConnector(native_tls::TlsConnector);
 
 impl TlsConnector {
     /// Connects the provided stream with this connector, assuming the provided
@@ -25,7 +25,7 @@ impl TlsConnector {
     /// example, a TCP connection to a remote server. That stream is then
     /// provided here to perform the client half of a connection to a
     /// TLS-powered server.
-    pub async fn connect<S>(&self, domain: &str, stream: S) -> Result<TlsStream<S>, Error>
+    pub(crate) async fn connect<S>(&self, domain: &str, stream: S) -> Result<TlsStream<S>, Error>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
