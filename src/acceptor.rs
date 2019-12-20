@@ -4,8 +4,8 @@ use std::marker::Unpin;
 use futures_io::{AsyncRead, AsyncWrite};
 use native_tls::Error;
 
-use crate::TlsStream;
 use crate::handshake::handshake;
+use crate::TlsStream;
 
 /// A wrapper around a `native_tls::TlsAcceptor`, providing an async `accept`
 /// method.
@@ -42,4 +42,3 @@ impl From<native_tls::TlsAcceptor> for TlsAcceptor {
         TlsAcceptor(inner)
     }
 }
-
