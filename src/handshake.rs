@@ -8,8 +8,8 @@ use std::task::{Context, Poll};
 use futures_io::{AsyncRead, AsyncWrite};
 use native_tls::{Error, HandshakeError, MidHandshakeTlsStream};
 
-use crate::TlsStream;
 use crate::std_adapter::StdAdapter;
+use crate::TlsStream;
 
 pub(crate) async fn handshake<F, S>(f: F, stream: S) -> Result<TlsStream<S>, Error>
 where
