@@ -2,15 +2,15 @@ use std::fmt;
 use std::marker::Unpin;
 
 use futures_io::{AsyncRead, AsyncWrite};
-use native_tls::{Error};
+use native_tls::Error;
 
-use crate::TlsStream;
 use crate::handshake::handshake;
+use crate::TlsStream;
 
 /// A wrapper around a `native_tls::TlsConnector`, providing an async `connect`
 /// method.
 #[derive(Clone)]
-pub(crate) struct TlsConnector(native_tls::TlsConnector);
+pub struct TlsConnector(native_tls::TlsConnector);
 
 impl TlsConnector {
     /// Connects the provided stream with this connector, assuming the provided
@@ -25,7 +25,37 @@ impl TlsConnector {
     /// example, a TCP connection to a remote server. That stream is then
     /// provided here to perform the client half of a connection to a
     /// TLS-powered server.
-    pub(crate) async fn connect<S>(&self, domain: &str, stream: S) -> Result<TlsStream<S>, Error>
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
+    /// #
+    /// use async_std::prelude::*;
+    /// use std::net::ToSocketAddrs;
+    ///
+    /// let socket = async_std::net::TcpStream::connect("google.com:443").await?;
+    ///
+    /// // Configure using the regular native_tls::TlsConnector.
+    /// let builder = native_tls::TlsConnector::builder();
+    ///
+    /// let connector: async_native_tls::TlsConnector = builder.build()?.into();
+    ///
+    /// let mut socket = connector.connect("google.com", socket).await?;
+    /// socket.write_all(b"GET / HTTP/1.0\r\n\r\n").await?;
+    ///
+    /// let mut data = Vec::new();
+    /// socket.read_to_end(&mut data).await?;
+    ///
+    /// // any response code is fine
+    /// assert!(data.starts_with(b"HTTP/1.0 "));
+    ///
+    /// let data = String::from_utf8_lossy(&data);
+    /// let data = data.trim_end();
+    /// assert!(data.ends_with("</html>") || data.ends_with("</HTML>"));
+    /// #
+    /// # Ok(()) }) }
+    pub async fn connect<S>(&self, domain: &str, stream: S) -> Result<TlsStream<S>, Error>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
@@ -44,4 +74,3 @@ impl From<native_tls::TlsConnector> for TlsConnector {
         TlsConnector(inner)
     }
 }
-

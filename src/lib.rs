@@ -11,14 +11,14 @@
 //!
 //! To connect as a client to a remote server:
 //!
-//! ```no_run
+//! ```rust
 //! # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
 //! #
 //! use async_std::prelude::*;
 //! use async_std::net::TcpStream;
 //!
 //! let stream = TcpStream::connect("google.com:443").await?;
-//! let mut stream = async_tls::connect("google.com", stream).await?;
+//! let mut stream = async_native_tls::connect("google.com", stream).await?;
 //! stream.write_all(b"GET / HTTP/1.0\r\n\r\n").await?;
 //!
 //! let mut res = Vec::new();
@@ -35,27 +35,27 @@ mod std_adapter;
 mod tls_stream;
 
 pub use acceptor::TlsAcceptor;
-use connector::TlsConnector;
-pub use tls_stream::TlsStream;
 pub use connect::connect;
+pub use connector::TlsConnector;
+pub use tls_stream::TlsStream;
 
 mod connect {
-    use futures_io::{AsyncRead, AsyncWrite};
-    use crate::TlsStream;
     use crate::TlsConnector;
+    use crate::TlsStream;
+    use futures_io::{AsyncRead, AsyncWrite};
 
     /// Connect a client to a remote server.
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
     /// use async_std::net::TcpStream;
     ///
     /// let stream = TcpStream::connect("google.com:443").await?;
-    /// let mut stream = async_tls::connect("google.com", stream).await?;
+    /// let mut stream = async_native_tls::connect("google.com", stream).await?;
     /// stream.write_all(b"GET / HTTP/1.0\r\n\r\n").await?;
     ///
     /// let mut res = Vec::new();
@@ -75,4 +75,3 @@ mod connect {
         Ok(stream)
     }
 }
-
