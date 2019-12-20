@@ -1,9 +1,9 @@
-use std::io::{self, Read, Write};
+use std::io::{self, BufRead, Read, Write};
 use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
-use futures_io::{AsyncRead, AsyncWrite};
+use futures_io::{AsyncBufRead, AsyncRead, AsyncWrite};
 
 #[derive(Debug)]
 pub(crate) struct StdAdapter<S> {
@@ -40,6 +40,24 @@ where
             Poll::Ready(r) => r,
             Poll::Pending => Err(io::Error::from(io::ErrorKind::WouldBlock)),
         }
+    }
+}
+
+impl<S> BufRead for StdAdapter<S>
+where
+    S: AsyncBufRead + Unpin,
+{
+    fn fill_buf(&mut self) -> io::Result<&[u8]> {
+        unimplemented!()
+        // TODO: make it compile
+        // match self.with_context(|ctx, stream| stream.poll_fill_buf(ctx)) {
+        //     Poll::Ready(buf) => buf,
+        //     Poll::Pending => Err(io::Error::from(io::ErrorKind::WouldBlock)),
+        // }
+    }
+
+    fn consume(&mut self, amt: usize) {
+        self.consume(amt)
     }
 }
 
