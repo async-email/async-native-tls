@@ -1,10 +1,10 @@
-use std::io::{self, Read, Write};
+use std::io::{self, BufRead, Read, Write};
 use std::marker::Unpin;
 use std::pin::Pin;
 use std::ptr::null_mut;
 use std::task::{Context, Poll};
 
-use futures_io::{AsyncRead, AsyncWrite};
+use futures_io::{AsyncBufRead, AsyncRead, AsyncWrite};
 
 use crate::std_adapter::StdAdapter;
 
@@ -61,6 +61,19 @@ where
         buf: &mut [u8],
     ) -> Poll<io::Result<usize>> {
         self.with_context(ctx, |s| cvt(s.read(buf)))
+    }
+}
+
+impl<S> AsyncBufRead for TlsStream<S>
+where
+    S: AsyncBufRead + AsyncWrite + Unpin,
+{
+    fn poll_fill_buf(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<&[u8]>> {
+        self.with_context(cx, |s| cvt(s.fill_buf()))
+    }
+
+    fn consume(self: Pin<&mut Self>, amt: usize) {
+        self.consume(amt)
     }
 }
 
