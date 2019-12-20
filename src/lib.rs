@@ -52,7 +52,7 @@ mod connect {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
@@ -80,7 +80,7 @@ mod connect {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
@@ -122,7 +122,7 @@ mod connect {
         ///
         /// A value of `None` enables support for the oldest protocols supported by the
         /// implementation. Defaults to `Some(Protocol::Tlsv10)`.
-        pub fn min_protocol_version(&mut self, protocol: Option<Protocol>) -> &mut Self {
+        pub fn min_protocol_version(mut self, protocol: Option<Protocol>) -> Self {
             self.builder.min_protocol_version(protocol);
             self
         }
@@ -131,7 +131,7 @@ mod connect {
         ///
         /// A value of `None` enables support for the newest protocols supported by the
         /// implementation. Defaults to `None`.
-        pub fn max_protocol_version(&mut self, protocol: Option<Protocol>) -> &mut Self {
+        pub fn max_protocol_version(mut self, protocol: Option<Protocol>) -> Self {
             self.builder.max_protocol_version(protocol);
             self
         }
@@ -141,7 +141,7 @@ mod connect {
         /// The connector will use the system's trust root by default. This method can be used to
         /// add to that set when communicating with servers not trusted by the system. Defaults to
         /// an empty set.
-        pub fn add_root_certificate(&mut self, cert: Certificate) -> &mut Self {
+        pub fn add_root_certificate(mut self, cert: Certificate) -> Self {
             self.builder.add_root_certificate(cert);
             self
         }
@@ -165,7 +165,7 @@ mod connect {
         /// Controls the use of Server Name Indication (SNI).
         ///
         /// Defaults to `true`.
-        pub fn use_sni(&mut self, use_sni: bool) -> &mut Self {
+        pub fn use_sni(mut self, use_sni: bool) -> Self {
             self.builder.use_sni(use_sni);
             self
         }
@@ -180,9 +180,9 @@ mod connect {
         /// trusted, any valid certificate for any site will be trusted for use. This introduces
         /// significant vulnerabilities, and should only be used as a last resort.
         pub fn danger_accept_invalid_hostnames(
-            &mut self,
+            mut self,
             accept_invalid_hostnames: bool,
-        ) -> &mut Self {
+        ) -> Self {
             self.builder
                 .danger_accept_invalid_hostnames(accept_invalid_hostnames);
             self
@@ -192,7 +192,7 @@ mod connect {
         ///
         /// # Examples
         ///
-        /// ```no_run
+        /// ```
         /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
         /// #
         /// use async_std::prelude::*;
