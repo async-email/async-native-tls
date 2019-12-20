@@ -1,6 +1,45 @@
-# async-native-tls
+<h1 align="center">async-native-tls</h1>
+<div align="center">
+ <strong>
+   Native TLS for async
+ </strong>
+</div>
 
-> TLS implementation for asnync. Based on tokio-tls.
+<br />
+
+<div align="center">
+  <!-- Crates version -->
+  <a href="https://crates.io/crates/async-native-tls">
+    <img src="https://img.shields.io/crates/v/async-native-tls.svg?style=flat-square"
+    alt="Crates.io version" />
+  </a>
+  <!-- Downloads -->
+  <a href="https://crates.io/crates/async-native-tls">
+    <img src="https://img.shields.io/crates/d/async-native-tls.svg?style=flat-square"
+      alt="Download" />
+  </a>
+  <!-- docs.rs docs -->
+  <a href="https://docs.rs/async-native-tls">
+    <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
+      alt="docs.rs docs" />
+  </a>
+</div>
+
+<div align="center">
+  <h3>
+    <a href="https://docs.rs/async-native-tls">
+      API Docs
+    </a>
+    <span> | </span>
+    <a href="https://github.com/async-email/async-native-tls/releases">
+      Releases
+    </a>
+  </h3>
+</div>
+
+<br/>
+
+> Native TLS for [futures](https://crates.io/crates/futures) and [async-std](https://crates.io/crates/async-std). Based on tokio-tls.
 
 ## Installation
 
