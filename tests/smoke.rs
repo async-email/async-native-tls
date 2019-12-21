@@ -5,7 +5,7 @@ use std::marker::Unpin;
 use std::process::Command;
 use std::ptr;
 
-use async_native_tls;
+use async_native_tls::TlsConnector;
 use async_std::io;
 use async_std::net::{TcpListener, TcpStream};
 use async_std::prelude::*;
@@ -15,7 +15,7 @@ use futures::join;
 use futures::stream::StreamExt;
 use futures::AsyncWrite;
 use native_tls;
-use native_tls::{Identity, TlsAcceptor, TlsConnector};
+use native_tls::{Identity, TlsAcceptor};
 
 macro_rules! t {
     ($e:expr) => {
@@ -161,10 +161,9 @@ cfg_if! {
             let srv = TlsAcceptor::builder(pkcs12);
 
             let cert = native_tls::Certificate::from_der(&keys.cert_der).unwrap();
-            let mut client = TlsConnector::builder();
-            client.add_root_certificate(cert);
+            let client = TlsConnector::new().add_root_certificate(cert);
 
-            (t!(srv.build()).into(), t!(client.build()).into())
+            (t!(srv.build()).into(), client)
         }
     } else {
         use schannel;
