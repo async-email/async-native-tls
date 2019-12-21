@@ -148,6 +148,12 @@ mod connect {
         builder: native_tls::TlsConnectorBuilder,
     }
 
+    impl Default for TlsConnector {
+        fn default() -> Self {
+            TlsConnector::new()
+        }
+    }
+
     impl TlsConnector {
         /// Create a new instance.
         pub fn new() -> Self {
