@@ -5,7 +5,7 @@ use std::pin::Pin;
 use std::ptr::null_mut;
 use std::task::{Context, Poll};
 
-use futures_io::{AsyncRead, AsyncWrite};
+use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
 use native_tls::{Error, HandshakeError, MidHandshakeTlsStream};
 
 use crate::std_adapter::StdAdapter;

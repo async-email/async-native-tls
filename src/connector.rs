@@ -1,7 +1,7 @@
 use std::fmt;
 use std::marker::Unpin;
 
-use futures_io::{AsyncRead, AsyncWrite};
+use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
 use native_tls::Error;
 
 use crate::handshake::handshake;

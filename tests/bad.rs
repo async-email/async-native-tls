@@ -3,11 +3,10 @@
 use std::io::{self, Error};
 use std::net::ToSocketAddrs;
 
-use async_native_tls;
+use async_native_tls::TlsConnector;
 use async_std::net::TcpStream;
 use cfg_if::cfg_if;
 use env_logger;
-use native_tls::TlsConnector;
 
 macro_rules! t {
     ($e:expr) => {
@@ -68,9 +67,7 @@ async fn get_host(host: &'static str) -> Error {
     let addr = t!(addr.to_socket_addrs()).next().unwrap();
 
     let socket = t!(TcpStream::connect(&addr).await);
-    let builder = TlsConnector::builder();
-    let cx = t!(builder.build());
-    let cx = async_native_tls::TlsConnector::from(cx);
+    let cx = TlsConnector::new();
     let res = cx
         .connect(host, socket)
         .await

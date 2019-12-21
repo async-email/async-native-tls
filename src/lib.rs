@@ -34,16 +34,60 @@ mod handshake;
 mod std_adapter;
 mod tls_stream;
 
-pub use acceptor::TlsAcceptor;
+pub use accept::accept;
+pub use acceptor::{Error as AcceptError, TlsAcceptor};
 pub use connect::{connect, TlsConnector};
 pub use tls_stream::TlsStream;
 
 #[doc(inline)]
 use native_tls::{Certificate, Identity, Protocol};
 
+mod accept {
+    use async_std::io::{Read, Write};
+
+    use crate::TlsStream;
+
+    /// One of accept of an incoming connection.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
+    /// #
+    /// use async_std::prelude::*;
+    /// use async_std::net::TcpListener;
+    /// use async_std::fs::File;
+    ///
+    /// let listener = TcpListener::bind("0.0.0.0:8443").await?;
+    /// let (stream, _addr) = listener.accept().await?;
+    ///
+    /// let key = File::open("identity.pfx").await?;
+    /// let stream = async_native_tls::accept(key, "<password>", stream).await?;
+    /// // handle stream here
+    /// #
+    /// # Ok(()) }) }
+    /// ```
+    pub async fn accept<R, S, T>(
+        file: R,
+        password: S,
+        stream: T,
+    ) -> Result<TlsStream<T>, crate::AcceptError>
+    where
+        R: Read + Unpin,
+        S: AsRef<str>,
+        T: Read + Write + Unpin,
+    {
+        let acceptor = crate::TlsAcceptor::new(file, password).await?;
+        let stream = acceptor.accept(stream).await?;
+
+        Ok(stream)
+    }
+}
+
 mod connect {
-    use futures_io::{AsyncRead, AsyncWrite};
     use std::fmt::{self, Debug};
+
+    use async_std::io::{Read, Write};
 
     use crate::TlsStream;
     use crate::{Certificate, Identity, Protocol};
@@ -70,7 +114,7 @@ mod connect {
     /// ```
     pub async fn connect<S>(domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
     where
-        S: AsyncRead + AsyncWrite + Unpin,
+        S: Read + Write + Unpin,
     {
         let stream = TlsConnector::new().connect(domain, stream).await?;
         Ok(stream)
@@ -102,6 +146,12 @@ mod connect {
     /// ```
     pub struct TlsConnector {
         builder: native_tls::TlsConnectorBuilder,
+    }
+
+    impl Default for TlsConnector {
+        fn default() -> Self {
+            TlsConnector::new()
+        }
     }
 
     impl TlsConnector {
@@ -179,10 +229,7 @@ mod connect {
         /// You should think very carefully before using this method. If invalid hostnames are
         /// trusted, any valid certificate for any site will be trusted for use. This introduces
         /// significant vulnerabilities, and should only be used as a last resort.
-        pub fn danger_accept_invalid_hostnames(
-            mut self,
-            accept_invalid_hostnames: bool,
-        ) -> Self {
+        pub fn danger_accept_invalid_hostnames(mut self, accept_invalid_hostnames: bool) -> Self {
             self.builder
                 .danger_accept_invalid_hostnames(accept_invalid_hostnames);
             self
@@ -214,7 +261,7 @@ mod connect {
         /// ```
         pub async fn connect<S>(self, domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
         where
-            S: AsyncRead + AsyncWrite + Unpin,
+            S: Read + Write + Unpin,
         {
             let connector = self.builder.build()?;
             let connector = crate::connector::TlsConnector::from(connector);
