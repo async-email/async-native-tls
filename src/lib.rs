@@ -40,7 +40,7 @@ pub use connect::{connect, TlsConnector};
 pub use tls_stream::TlsStream;
 
 #[doc(inline)]
-use native_tls::{Certificate, Identity, Protocol};
+pub use native_tls::{Certificate, Error, Identity, Protocol, Result};
 
 mod accept {
     use async_std::io::{Read, Write};
