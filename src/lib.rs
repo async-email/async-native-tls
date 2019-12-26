@@ -259,7 +259,7 @@ mod connect {
         /// #
         /// # Ok(()) }) }
         /// ```
-        pub async fn connect<S>(self, domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
+        pub async fn connect<S>(&self, domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
         where
             S: Read + Write + Unpin,
         {
