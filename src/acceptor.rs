@@ -121,8 +121,7 @@ mod tests {
         });
 
         let stream = TcpStream::connect("127.0.01:8443").await.unwrap();
-        let mut connector = TlsConnector::new();
-        connector.danger_accept_invalid_certs(true);
+        let connector = TlsConnector::new().danger_accept_invalid_certs(true);
 
         let mut stream = connector.connect("127.0.0.1", stream).await.unwrap();
         let mut res = Vec::new();

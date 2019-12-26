@@ -206,7 +206,7 @@ mod connect {
         /// trusted, any certificate for any site will be trusted for use. This includes expired
         /// certificates. This introduces significant vulnerabilities, and should only be used as a
         /// last resort.
-        pub fn danger_accept_invalid_certs(&mut self, accept_invalid_certs: bool) -> &mut Self {
+        pub fn danger_accept_invalid_certs(mut self, accept_invalid_certs: bool) -> Self {
             self.builder
                 .danger_accept_invalid_certs(accept_invalid_certs);
             self
