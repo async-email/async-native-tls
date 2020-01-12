@@ -5,7 +5,6 @@ use std::marker::Unpin;
 use std::process::Command;
 use std::ptr;
 
-use async_native_tls::TlsConnector;
 use async_std::io;
 use async_std::net::{TcpListener, TcpStream};
 use async_std::prelude::*;
@@ -15,6 +14,7 @@ use futures::join;
 use futures::stream::StreamExt;
 use futures::AsyncWrite;
 use native_tls;
+use native_tls::TlsConnector;
 use native_tls::{Identity, TlsAcceptor};
 
 macro_rules! t {
@@ -147,7 +147,7 @@ cfg_if! {
             let mut client = TlsConnector::builder();
             t!(client.add_root_certificate(cert).build());
 
-            (t!(srv.build()).into(), t!(client.build()).into())
+            (t!(srv.build()).into(), client.into())
         }
     } else if #[cfg(any(target_os = "macos", target_os = "ios"))] {
         use std::env;
@@ -163,7 +163,7 @@ cfg_if! {
             let cert = native_tls::Certificate::from_der(&keys.cert_der).unwrap();
             let client = TlsConnector::new().add_root_certificate(cert);
 
-            (t!(srv.build()).into(), client)
+            (t!(srv.build()).into(), client.into())
         }
     } else {
         use schannel;

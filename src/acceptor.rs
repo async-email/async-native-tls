@@ -1,10 +1,8 @@
 use std::fmt;
 use std::marker::Unpin;
 
-use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
-use async_std::prelude::*;
-
 use crate::handshake::handshake;
+use crate::runtime::{AsyncRead, AsyncReadExt, AsyncWrite};
 use crate::TlsStream;
 
 /// A wrapper around a `native_tls::TlsAcceptor`, providing an async `accept`
@@ -13,6 +11,7 @@ use crate::TlsStream;
 /// # Example
 ///
 /// ```no_run
+/// # #[cfg(feature = "runtime-async-std")]
 /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
 /// #
 /// use async_std::prelude::*;
@@ -35,6 +34,8 @@ use crate::TlsStream;
 /// }
 /// #
 /// # Ok(()) }) }
+/// # #[cfg(feature = "runtime-tokio")]
+/// # fn main() {}
 /// ```
 #[derive(Clone)]
 pub struct TlsAcceptor(native_tls::TlsAcceptor);
@@ -47,7 +48,7 @@ pub enum Error {
     NativeTls(#[from] native_tls::Error),
     /// Io error.
     #[error("Io({})", 0)]
-    Io(#[from] async_std::io::Error),
+    Io(#[from] std::io::Error),
 }
 
 impl TlsAcceptor {
@@ -95,12 +96,14 @@ impl From<native_tls::TlsAcceptor> for TlsAcceptor {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "runtime-async-std"))]
 mod tests {
     use super::*;
+    use crate::runtime::AsyncWriteExt;
     use crate::TlsConnector;
     use async_std::fs::File;
     use async_std::net::{TcpListener, TcpStream};
+    use async_std::stream::StreamExt;
 
     #[async_std::test]
     async fn test_acceptor() {

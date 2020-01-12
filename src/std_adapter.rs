@@ -3,7 +3,7 @@ use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 
-use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
+use crate::runtime::{AsyncRead, AsyncWrite};
 
 #[derive(Debug)]
 pub(crate) struct StdAdapter<S> {
