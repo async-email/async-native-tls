@@ -1,10 +1,10 @@
 use std::fmt;
 use std::marker::Unpin;
 
-use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
 use native_tls::Error;
 
 use crate::handshake::handshake;
+use crate::runtime::{AsyncRead, AsyncWrite};
 use crate::TlsStream;
 
 /// A wrapper around a `native_tls::TlsConnector`, providing an async `connect`

@@ -5,9 +5,9 @@ use std::pin::Pin;
 use std::ptr::null_mut;
 use std::task::{Context, Poll};
 
-use async_std::io::{Read as AsyncRead, Write as AsyncWrite};
 use native_tls::{Error, HandshakeError, MidHandshakeTlsStream};
 
+use crate::runtime::{AsyncRead, AsyncWrite};
 use crate::std_adapter::StdAdapter;
 use crate::TlsStream;
 

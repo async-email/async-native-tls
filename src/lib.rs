@@ -12,6 +12,7 @@
 //! To connect as a client to a remote server:
 //!
 //! ```rust
+//! # #[cfg(feature = "runtime-async-std")]
 //! # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
 //! #
 //! use async_std::prelude::*;
@@ -26,11 +27,20 @@
 //! println!("{}", String::from_utf8_lossy(&res));
 //! #
 //! # Ok(()) }) }
+//! # #[cfg(feature = "runtime-tokio")]
+//! # fn main() {}
 //! ```
+
+#[cfg(not(any(feature = "runtime-tokio", feature = "runtime-async-std")))]
+compile_error!("one of 'runtime-async-std' or 'runtime-tokio' features must be enabled");
+
+#[cfg(all(feature = "runtime-tokio", feature = "runtime-async-std"))]
+compile_error!("only one of 'runtime-async-std' or 'runtime-tokio' features must be enabled");
 
 mod acceptor;
 mod connector;
 mod handshake;
+mod runtime;
 mod std_adapter;
 mod tls_stream;
 
@@ -43,7 +53,7 @@ pub use tls_stream::TlsStream;
 pub use native_tls::{Certificate, Error, Identity, Protocol, Result};
 
 mod accept {
-    use async_std::io::{Read, Write};
+    use crate::runtime::{AsyncRead, AsyncWrite};
 
     use crate::TlsStream;
 
@@ -52,6 +62,7 @@ mod accept {
     /// # Example
     ///
     /// ```no_run
+    /// # #[cfg(feature = "runtime-async-std")]
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
@@ -66,6 +77,8 @@ mod accept {
     /// // handle stream here
     /// #
     /// # Ok(()) }) }
+    /// # #[cfg(feature = "runtime-tokio")]
+    /// # fn main() {}
     /// ```
     pub async fn accept<R, S, T>(
         file: R,
@@ -73,9 +86,9 @@ mod accept {
         stream: T,
     ) -> Result<TlsStream<T>, crate::AcceptError>
     where
-        R: Read + Unpin,
+        R: AsyncRead + Unpin,
         S: AsRef<str>,
-        T: Read + Write + Unpin,
+        T: AsyncRead + AsyncWrite + Unpin,
     {
         let acceptor = crate::TlsAcceptor::new(file, password).await?;
         let stream = acceptor.accept(stream).await?;
@@ -87,8 +100,7 @@ mod accept {
 mod connect {
     use std::fmt::{self, Debug};
 
-    use async_std::io::{Read, Write};
-
+    use crate::runtime::{AsyncRead, AsyncWrite};
     use crate::TlsStream;
     use crate::{Certificate, Identity, Protocol};
 
@@ -97,6 +109,7 @@ mod connect {
     /// # Examples
     ///
     /// ```
+    /// # #[cfg(feature = "runtime-async-std")]
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
@@ -111,10 +124,12 @@ mod connect {
     /// println!("{}", String::from_utf8_lossy(&res));
     /// #
     /// # Ok(()) }) }
+    /// # #[cfg(feature = "runtime-tokio")]
+    /// # fn main() {}
     /// ```
     pub async fn connect<S>(domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
     where
-        S: Read + Write + Unpin,
+        S: AsyncRead + AsyncWrite + Unpin,
     {
         let stream = TlsConnector::new().connect(domain, stream).await?;
         Ok(stream)
@@ -125,6 +140,7 @@ mod connect {
     /// # Examples
     ///
     /// ```
+    /// # #[cfg(feature = "runtime-async-std")]
     /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
     /// #
     /// use async_std::prelude::*;
@@ -143,6 +159,8 @@ mod connect {
     /// println!("{}", String::from_utf8_lossy(&res));
     /// #
     /// # Ok(()) }) }
+    /// # #[cfg(feature = "runtime-tokio")]
+    /// # fn main() {}
     /// ```
     pub struct TlsConnector {
         builder: native_tls::TlsConnectorBuilder,
@@ -240,6 +258,7 @@ mod connect {
         /// # Examples
         ///
         /// ```
+        /// # #[cfg(feature = "runtime-async-std")]
         /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> { async_std::task::block_on(async {
         /// #
         /// use async_std::prelude::*;
@@ -258,10 +277,12 @@ mod connect {
         /// println!("{}", String::from_utf8_lossy(&res));
         /// #
         /// # Ok(()) }) }
+        /// # #[cfg(feature = "runtime-tokio")]
+        /// # fn main() {}
         /// ```
         pub async fn connect<S>(&self, domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
         where
-            S: Read + Write + Unpin,
+            S: AsyncRead + AsyncWrite + Unpin,
         {
             let connector = self.builder.build()?;
             let connector = crate::connector::TlsConnector::from(connector);
@@ -273,6 +294,12 @@ mod connect {
     impl Debug for TlsConnector {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             f.debug_struct("TlsConnector").finish()
+        }
+    }
+
+    impl From<native_tls::TlsConnectorBuilder> for TlsConnector {
+        fn from(builder: native_tls::TlsConnectorBuilder) -> Self {
+            Self { builder }
         }
     }
 }
