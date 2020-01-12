@@ -49,6 +49,30 @@ impl<S> TlsStream<S> {
     {
         &mut self.0.get_mut().inner
     }
+
+    /// Returns the number of bytes that can be read without resulting in any network calls.
+    pub fn buffered_read_size(&self) -> crate::Result<usize> 
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
+        self.0.buffered_read_size()
+    }
+
+    /// Returns the peer's leaf certificate, if available.
+    pub fn peer_certificate(&self) -> crate::Result<Option<crate::Certificate>> 
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
+        self.0.peer_certificate()
+    }
+
+    /// Returns the tls-server-end-point channel binding data as defined in [RFC 5929](https://tools.ietf.org/html/rfc5929).
+    pub fn tls_server_end_point(&self) -> crate::Result<Option<Vec<u8>>>
+    where
+        S: AsyncRead + AsyncWrite + Unpin,
+    {
+        self.0.tls_server_end_point()
+    }
 }
 
 impl<S> AsyncRead for TlsStream<S>
