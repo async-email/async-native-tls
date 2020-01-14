@@ -50,7 +50,7 @@ impl<S> TlsStream<S> {
     }
 
     /// Returns the number of bytes that can be read without resulting in any network calls.
-    pub fn buffered_read_size(&self) -> crate::Result<usize> 
+    pub fn buffered_read_size(&self) -> crate::Result<usize>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
@@ -58,7 +58,7 @@ impl<S> TlsStream<S> {
     }
 
     /// Returns the peer's leaf certificate, if available.
-    pub fn peer_certificate(&self) -> crate::Result<Option<crate::Certificate>> 
+    pub fn peer_certificate(&self) -> crate::Result<Option<crate::Certificate>>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
@@ -103,7 +103,7 @@ where
         self.with_context(ctx, |s| cvt(s.flush()))
     }
 
-    #[cfg(feature = "runtime-async-std")]
+    #[cfg(any(feature = "runtime-async-std", feature = "runtime-futures",))]
     fn poll_close(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<io::Result<()>> {
         match self.with_context(ctx, |s| s.shutdown()) {
             Ok(()) => Poll::Ready(Ok(())),
