@@ -19,15 +19,18 @@ native-tls = "0.2.3"
 thiserror = "1.0.9"
 async-std = { version = "1.4.0", default-features = false, features = ["std"], optional = true }
 tokio = { version = "0.2.9", default-features = false, features = ["io-util"], optional = true }
+url = { version = "2.1.1", optional = true }
 
 [features]
-default = ["runtime-async-std"]
+default = ["runtime-async-std", "host-from-url"]
 
 vendored = ["native-tls/vendored"]
 
 # Runtime
 runtime-async-std = ["async-std"]
 runtime-tokio = ["tokio"]
+# Convert from url::Url to Host
+host-from-url = ["url"]
 
 [dev-dependencies]
 env_logger = "0.7.1"
