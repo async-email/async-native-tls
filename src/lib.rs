@@ -53,6 +53,17 @@ pub use tls_stream::TlsStream;
 #[doc(inline)]
 pub use native_tls::{Certificate, Error, Identity, Protocol, Result};
 
+/// Declares the host_from_url feature
+#[doc(hidden)]
+macro_rules! cfg_host_from_url {
+    ($($item:item)*) => {
+        $(
+            #[cfg(feature = "host-from-url")]
+            $item
+        )*
+    }
+}
+
 mod accept {
     use crate::runtime::{AsyncRead, AsyncWrite};
 
@@ -125,26 +136,27 @@ mod host {
         }
     }
 
-    #[cfg(feature = "host-from-url")]
-    use url::Url;
-    #[cfg(feature = "host-from-url")]
-    impl From<Url> for Host {
-        fn from(url: Url) -> Self {
-            Self(
-                url.host_str()
-                    .expect("URL has to include a host part.")
-                    .into(),
-            )
+    cfg_host_from_url! {
+        use url::Url;
+
+        impl From<Url> for Host {
+            fn from(url: Url) -> Self {
+                Self(
+                    url.host_str()
+                        .expect("URL has to include a host part.")
+                        .into(),
+                )
+            }
         }
-    }
-    #[cfg(feature = "host-from-url")]
-    impl From<&Url> for Host {
-        fn from(url: &Url) -> Self {
-            Self(
-                url.host_str()
-                    .expect("URL has to include a host part.")
-                    .into(),
-            )
+
+        impl From<&Url> for Host {
+            fn from(url: &Url) -> Self {
+                Self(
+                    url.host_str()
+                        .expect("URL has to include a host part.")
+                        .into(),
+                )
+            }
         }
     }
 }
