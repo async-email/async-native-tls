@@ -53,17 +53,6 @@ pub use tls_stream::TlsStream;
 #[doc(inline)]
 pub use native_tls::{Certificate, Error, Identity, Protocol, Result};
 
-/// Declares the host_from_url feature
-#[doc(hidden)]
-macro_rules! cfg_host_from_url {
-    ($($item:item)*) => {
-        $(
-            #[cfg(feature = "host-from-url")]
-            $item
-        )*
-    }
-}
-
 mod accept {
     use crate::runtime::{AsyncRead, AsyncWrite};
 
@@ -110,6 +99,8 @@ mod accept {
 }
 
 mod host {
+    use url::Url;
+
     /// The host part of a domain (without scheme, port and path).
     ///
     /// This is the argument to the [`connect`](crate::connect::connect) function. Strings and string slices are
@@ -136,27 +127,23 @@ mod host {
         }
     }
 
-    cfg_host_from_url! {
-        use url::Url;
-
-        impl From<Url> for Host {
-            fn from(url: Url) -> Self {
-                Self(
-                    url.host_str()
-                        .expect("URL has to include a host part.")
-                        .into(),
-                )
-            }
+    impl From<Url> for Host {
+        fn from(url: Url) -> Self {
+            Self(
+                url.host_str()
+                    .expect("URL has to include a host part.")
+                    .into(),
+            )
         }
+    }
 
-        impl From<&Url> for Host {
-            fn from(url: &Url) -> Self {
-                Self(
-                    url.host_str()
-                        .expect("URL has to include a host part.")
-                        .into(),
-                )
-            }
+    impl From<&Url> for Host {
+        fn from(url: &Url) -> Self {
+            Self(
+                url.host_str()
+                    .expect("URL has to include a host part.")
+                    .into(),
+            )
         }
     }
 }
