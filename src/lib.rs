@@ -127,6 +127,12 @@ mod host {
         }
     }
 
+    impl From<&String> for Host {
+        fn from(host: &String) -> Self {
+            Self(host.into())
+        }
+    }
+
     impl From<Url> for Host {
         fn from(url: Url) -> Self {
             Self(
