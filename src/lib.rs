@@ -47,6 +47,7 @@ mod tls_stream;
 pub use accept::accept;
 pub use acceptor::{Error as AcceptError, TlsAcceptor};
 pub use connect::{connect, TlsConnector};
+pub use host::Host;
 pub use tls_stream::TlsStream;
 
 #[doc(inline)]
@@ -97,9 +98,66 @@ mod accept {
     }
 }
 
+mod host {
+    use url::Url;
+
+    /// The host part of a domain (without scheme, port and path).
+    ///
+    /// This is the argument to the [`connect`](crate::connect::connect) function. Strings and string slices are
+    /// converted into Hosts automatically, as is [Url](url::Url) with the `host-from-url` feature (enabled by default).
+    #[derive(Debug)]
+    pub struct Host(String);
+
+    impl Host {
+        /// The host as string. Consumes self.
+        pub fn as_string(self) -> String {
+            self.0
+        }
+    }
+
+    impl From<&str> for Host {
+        fn from(host: &str) -> Self {
+            Self(host.into())
+        }
+    }
+
+    impl From<String> for Host {
+        fn from(host: String) -> Self {
+            Self(host)
+        }
+    }
+
+    impl From<&String> for Host {
+        fn from(host: &String) -> Self {
+            Self(host.into())
+        }
+    }
+
+    impl From<Url> for Host {
+        fn from(url: Url) -> Self {
+            Self(
+                url.host_str()
+                    .expect("URL has to include a host part.")
+                    .into(),
+            )
+        }
+    }
+
+    impl From<&Url> for Host {
+        fn from(url: &Url) -> Self {
+            Self(
+                url.host_str()
+                    .expect("URL has to include a host part.")
+                    .into(),
+            )
+        }
+    }
+}
+
 mod connect {
     use std::fmt::{self, Debug};
 
+    use crate::host::Host;
     use crate::runtime::{AsyncRead, AsyncWrite};
     use crate::TlsStream;
     use crate::{Certificate, Identity, Protocol};
@@ -127,11 +185,11 @@ mod connect {
     /// # #[cfg(feature = "runtime-tokio")]
     /// # fn main() {}
     /// ```
-    pub async fn connect<S>(domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
+    pub async fn connect<S>(host: impl Into<Host>, stream: S) -> native_tls::Result<TlsStream<S>>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
-        let stream = TlsConnector::new().connect(domain, stream).await?;
+        let stream = TlsConnector::new().connect(host, stream).await?;
         Ok(stream)
     }
 
@@ -280,13 +338,19 @@ mod connect {
         /// # #[cfg(feature = "runtime-tokio")]
         /// # fn main() {}
         /// ```
-        pub async fn connect<S>(&self, domain: &str, stream: S) -> native_tls::Result<TlsStream<S>>
+        pub async fn connect<S>(
+            &self,
+            host: impl Into<Host>,
+            stream: S,
+        ) -> native_tls::Result<TlsStream<S>>
         where
             S: AsyncRead + AsyncWrite + Unpin,
         {
+            let host: Host = host.into();
+            let domain = host.as_string();
             let connector = self.builder.build()?;
             let connector = crate::connector::TlsConnector::from(connector);
-            let stream = connector.connect(domain, stream).await?;
+            let stream = connector.connect(&domain, stream).await?;
             Ok(stream)
         }
     }

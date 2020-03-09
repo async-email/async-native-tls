@@ -19,6 +19,7 @@ native-tls = "0.2.3"
 thiserror = "1.0.9"
 async-std = { version = "1.4.0", default-features = false, features = ["std"], optional = true }
 tokio = { version = "0.2.9", default-features = false, features = ["io-util"], optional = true }
+url = "2.1.1"
 
 [features]
 default = ["runtime-async-std"]

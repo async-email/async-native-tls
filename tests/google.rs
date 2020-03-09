@@ -56,7 +56,8 @@ async fn fetch_google() {
     // Send off the request by first negotiating an SSL handshake, then writing
     // of our request, then flushing, then finally read off the response.
     let connector = async_native_tls::TlsConnector::new();
-    let mut socket = t!(connector.connect("google.com", socket).await);
+    let url = url::Url::parse("https://google.com/").unwrap();
+    let mut socket = t!(connector.connect(&url, socket).await);
     t!(socket.write_all(b"GET / HTTP/1.0\r\n\r\n").await);
     let mut data = Vec::new();
     t!(socket.read_to_end(&mut data).await);
