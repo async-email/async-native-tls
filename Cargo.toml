@@ -22,7 +22,7 @@ futures-util = { version = "0.3.1", features = ["io"], optional = true }
 tokio = { version = "0.2.9", default-features = false, features = ["io-util"], optional = true }
 
 [features]
-default = ["runtime-futures"]
+default = ["runtime-async-std"]
 
 vendored = ["native-tls/vendored"]
 
