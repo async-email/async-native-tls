@@ -14,7 +14,6 @@ use futures::join;
 use futures::stream::StreamExt;
 use futures::AsyncWrite;
 use native_tls;
-use native_tls::TlsConnector;
 use native_tls::{Identity, TlsAcceptor};
 
 macro_rules! t {
@@ -161,7 +160,7 @@ cfg_if! {
             let srv = TlsAcceptor::builder(pkcs12);
 
             let cert = native_tls::Certificate::from_der(&keys.cert_der).unwrap();
-            let client = TlsConnector::new().add_root_certificate(cert);
+            let client = async_native_tls::TlsConnector::new().add_root_certificate(cert);
 
             (t!(srv.build()).into(), client.into())
         }
