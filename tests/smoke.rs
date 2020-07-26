@@ -134,6 +134,7 @@ cfg_if! {
         use std::fs::File;
         use std::env;
         use std::sync::Once;
+        use async_native_tls::TlsConnector;
 
         fn contexts() -> (async_native_tls::TlsAcceptor, async_native_tls::TlsConnector) {
             let keys = openssl_keys();
@@ -143,8 +144,8 @@ cfg_if! {
 
             let cert = t!(native_tls::Certificate::from_der(&keys.cert_der));
 
-            let mut client = TlsConnector::builder();
-            t!(client.add_root_certificate(cert).build());
+            let client = TlsConnector::new();
+            let client = client.add_root_certificate(cert);
 
             (t!(srv.build()).into(), client.into())
         }
