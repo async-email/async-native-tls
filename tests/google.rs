@@ -1,14 +1,11 @@
 #![warn(rust_2018_idioms)]
 
-use std::io;
 use std::net::ToSocketAddrs;
 
 use async_native_tls;
 use async_std::net::TcpStream;
 use async_std::prelude::*;
-use cfg_if::cfg_if;
 use env_logger;
-use native_tls;
 
 macro_rules! t {
     ($e:expr) => {
@@ -17,31 +14,6 @@ macro_rules! t {
             Err(e) => panic!("{} failed with {:?}", stringify!($e), e),
         }
     };
-}
-
-cfg_if! {
-    if #[cfg(any(feature = "force-openssl",
-                        all(not(target_os = "macos"),
-                            not(target_os = "windows"),
-                            not(target_os = "ios"))))] {
-        fn assert_bad_hostname_error(err: &io::Error) {
-            let err = err.get_ref().unwrap();
-            let err = err.downcast_ref::<native_tls::Error>().unwrap();
-            assert!(format!("{}", err).contains("certificate verify failed"));
-        }
-    } else if #[cfg(any(target_os = "macos", target_os = "ios"))] {
-        fn assert_bad_hostname_error(err: &io::Error) {
-            let err = err.get_ref().unwrap();
-            let err = err.downcast_ref::<native_tls::Error>().unwrap();
-            assert!(format!("{}", err).contains("was not trusted."));
-        }
-    } else {
-        fn assert_bad_hostname_error(err: &io::Error) {
-            let err = err.get_ref().unwrap();
-            let err = err.downcast_ref::<native_tls::Error>().unwrap();
-            assert!(format!("{}", err).contains("CN name"));
-        }
-    }
 }
 
 #[async_std::test]
