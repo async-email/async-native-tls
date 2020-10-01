@@ -110,6 +110,7 @@ mod host {
 
     impl Host {
         /// The host as string. Consumes self.
+        #[allow(clippy::wrong_self_convention)]
         pub fn as_string(self) -> String {
             self.0
         }
