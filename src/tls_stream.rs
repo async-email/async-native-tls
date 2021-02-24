@@ -74,6 +74,7 @@ impl<S> TlsStream<S> {
     }
 }
 
+#[cfg(feature = "runtime-async-std")]
 impl<S> AsyncRead for TlsStream<S>
 where
     S: AsyncRead + AsyncWrite + Unpin,
@@ -84,6 +85,27 @@ where
         buf: &mut [u8],
     ) -> Poll<io::Result<usize>> {
         self.with_context(ctx, |s| cvt(s.read(buf)))
+    }
+}
+
+#[cfg(feature = "runtime-tokio")]
+impl<S> AsyncRead for TlsStream<S>
+where
+    S: AsyncRead + AsyncWrite + Unpin,
+{
+    fn poll_read(
+        mut self: Pin<&mut Self>,
+        ctx: &mut Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        match self.with_context(ctx, |s| cvt(s.read(buf.initialize_unfilled()))) {
+            Poll::Ready(Ok(len)) => {
+                buf.advance(len);
+                Poll::Ready(Ok(()))
+            }
+            Poll::Ready(Err(err)) => Poll::Ready(Err(err)),
+            Poll::Pending => Poll::Pending,
+        }
     }
 }
 
