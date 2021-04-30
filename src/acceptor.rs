@@ -96,6 +96,20 @@ impl From<native_tls::TlsAcceptor> for TlsAcceptor {
     }
 }
 
+#[cfg(feature = "runtime-async-std")]
+#[async_tls_acceptor::async_trait]
+impl<Input> async_tls_acceptor::Acceptor<Input> for TlsAcceptor
+where
+    Input: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
+{
+    type Output = TlsStream<Input>;
+    type Error = crate::Error;
+
+    async fn accept(&self, input: Input) -> Result<Self::Output, Self::Error> {
+        TlsAcceptor::accept(&self, input).await
+    }
+}
+
 #[cfg(all(test, feature = "runtime-async-std"))]
 mod tests {
     use super::*;
