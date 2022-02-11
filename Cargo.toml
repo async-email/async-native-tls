@@ -15,7 +15,7 @@ categories = ["asynchronous", "cryptography", "network-programming"]
 
 
 [dependencies]
-native-tls = "0.2.3"
+native-tls = "0.2.8"
 thiserror = "1.0.9"
 futures-util = { version = "0.3.1", features = ["io"], optional = true }
 tokio = { version = "1.0", default-features = false, features = ["io-util"], optional = true }
@@ -31,10 +31,10 @@ runtime-async-std = ["futures-util"]
 runtime-tokio = ["tokio"]
 
 [dev-dependencies]
-env_logger = "0.7.1"
+env_logger = "0.9.0"
 async-std = { version = "1.6.0", features = ["attributes"] }
 tokio = { version = "1.0", features = ["full"] }
-cfg-if = "0.1.10"
+cfg-if = "1.0.0"
 futures = "0.3.1"
 
 [[test]]
