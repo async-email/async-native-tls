@@ -273,6 +273,14 @@ mod connect {
             self
         }
 
+        /// Request specific protocols through ALPN (Application-Layer Protocol Negotiation).
+        ///
+        /// Defaults to none
+        pub fn request_alpns(mut self, protocols: &[&str]) -> Self {
+            self.builder.request_alpns(protocols);
+            self
+        }
+
         /// Controls the use of certificate validation.
         ///
         /// Defaults to false.
