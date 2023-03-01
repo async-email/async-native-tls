@@ -44,10 +44,7 @@ jobs:
           args: --benches
 
       - name: tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all
+        run: cargo test --all --features vendored
 
   check_fmt_and_docs:
     name: Checking fmt and docs
