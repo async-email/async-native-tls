@@ -47,7 +47,7 @@ jobs:
         run: cargo test --all --features vendored
 
   check_fmt_and_docs:
-    name: Checking fmt and docs
+    name: Checking fmt, clippy and docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,17 +62,8 @@ jobs:
       - name: fmt
         run: cargo fmt --all -- --check
 
-      - name: Docs
-        run: cargo doc
-
-  clippy_check:
-    name: Clippy check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install rust
-        run: rustup update beta && rustup default beta
-      - name: Install clippy
-        run: rustup component add clippy
       - name: clippy
         run: cargo clippy --all
+
+      - name: Docs
+        run: cargo doc
